@@ -1,5 +1,7 @@
 # SPARQL-LD: A SPARQL Extension for Fetching and Querying Linked Data
 
+## This extension provides access to the query execution cost as well as the uris accessed.
+
 This Jena ARQ SERVICE extension allows to fetch, query and integrate in the same SPARQL query:
 - *data stored in the (local) endpoint*
 - *data coming from online RDF files (in any standard format)*
@@ -146,8 +148,3 @@ or:
 - Directly use the provided (already built) extended Jena ARQ jar: 
 
 **jena-arq-2.13.0_SPARQL-LD-1.0.jar**
-
-
-## This extension provides access to the query execution cost as well as the uris accessed.
-
-
