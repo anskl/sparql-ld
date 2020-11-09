@@ -18,9 +18,7 @@
 package com.hp.hpl.jena.sparql.engine.http;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.jena.atlas.io.IO;
 import org.apache.jena.riot.WebContent;
@@ -60,6 +58,9 @@ import com.hp.hpl.jena.sparql.util.Symbol;
  */
 public class Service {
     /* define the symbols that Service will use to set the HttpQuery parameters */
+    public static int cost = 0; // sparql-ld-stats extension
+
+    public static final List<String> urisAccessed = new ArrayList<>(); // sparql-ld extension
 
     public static final String base = "http://jena.hpl.hp.com/Service#";
     /**
@@ -188,7 +189,8 @@ public class Service {
         QueryIterator qIter = null;
 
         // SPARQL-LD EXTENSION //
-        System.out.println("# IRI: " + uri);
+        // System.out.println("# IRI: " + uri);
+        urisAccessed.add(uri);
 
         if (uri.toLowerCase().equals("http://example.com:40000")) { // case of junit tests
             HttpQuery httpQuery = configureQuery(uri, context, query);
@@ -235,6 +237,7 @@ public class Service {
                     } else { // the IRI is NOT a SPARQL endpoint
                         System.out.println("# The IRI is NOT a SPARQL endpoint. ");
 
+                        ++cost;
                         ReadRDFFromIRI reader = new ReadRDFFromIRI(uri, query);
                         ResultSet rs = reader.getResultSet();
                         qIter = QueryIter.materialize(new QueryIteratorResultSet(rs));
@@ -247,15 +250,15 @@ public class Service {
             }
         }
 
-        /* 
-	 
-         // The OLD version follows: 
+        /*
+
+         // The OLD version follows:
          HttpQuery httpQuery = configureQuery(uri, context, query);
          InputStream in = httpQuery.exec();
          ResultSet rs = ResultSetFactory.fromXML(in);
          QueryIterator qIter = QueryIter.materialize(new QueryIteratorResultSet(rs));
          IO.close(in);
-         
+
          */
 
         // In some cases we may need to apply a re-mapping

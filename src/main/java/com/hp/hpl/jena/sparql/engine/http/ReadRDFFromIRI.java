@@ -17,21 +17,18 @@
  */
 package com.hp.hpl.jena.sparql.engine.http;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.engine.QueryExecutionBase;
+import org.semarglproject.jena.rdf.rdfa.JenaRdfaReader;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.semarglproject.jena.rdf.rdfa.JenaRdfaReader;
 
 /**
  * Fetches, reads and queries the RDF data that may exist in the IRI given to
@@ -53,7 +50,7 @@ public class ReadRDFFromIRI {
      * Create a new object for reading and querying the RDF data that may exist
      * in the given IRI.
      *
-     * @param iri The IRI of the SERVICE operator.
+     * @param iri   The IRI of the SERVICE operator.
      * @param query The query to run at the RDF data that may exist in the IRI.
      */
     public ReadRDFFromIRI(String iri, Query query) {
@@ -64,12 +61,32 @@ public class ReadRDFFromIRI {
     }
 
     /**
+     * Run an ASK query at the IRI for checking if it corresponds to a SPARQL
+     * endpoint.
+     */
+    public static boolean isEndpoint(String uri) {
+        try {
+            System.out.println("# Checking if the IRI corresponds to a SPARQL endpoint...Sending an ASK query...");
+            QueryExecution qexecTest = QueryExecutionFactory.sparqlService(uri, QueryFactory.create(askQuery));
+            boolean resultsTest = qexecTest.execAsk();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * Read the RDF data that may exist in the IRI by checking both the IRI file
      * extension and the IRI content type.
-     *
      */
     private void read() {
         model = ModelFactory.createDefaultModel();
+
+        // Speedup process
+        if (iri.contains("dbpedia")) {
+
+            iri = iri.replace("resource", "data") + ".n3";
+        }
 
         /* First check the IRI file extension */
         if (iri.toLowerCase().endsWith(".ntriples") || iri.toLowerCase().endsWith(".nt")) {
@@ -145,7 +162,6 @@ public class ReadRDFFromIRI {
 
     /**
      * Close the query execution and stop query evaluation.
-     *
      */
     public void close() {
         qe.close(false);
@@ -194,21 +210,5 @@ public class ReadRDFFromIRI {
 
     public void setModel(Model model) {
         this.model = model;
-    }
-
-    /**
-     * Run an ASK query at the IRI for checking if it corresponds to a SPARQL
-     * endpoint.
-     *
-     */
-    public static boolean isEndpoint(String uri) {
-        try {
-            System.out.println("# Checking if the IRI corresponds to a SPARQL endpoint...Sending an ASK query...");
-            QueryExecution qexecTest = QueryExecutionFactory.sparqlService(uri, QueryFactory.create(askQuery));
-            boolean resultsTest = qexecTest.execAsk();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 }
