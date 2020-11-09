@@ -146,3 +146,8 @@ or:
 - Directly use the provided (already built) extended Jena ARQ jar: 
 
 **jena-arq-2.13.0_SPARQL-LD-1.0.jar**
+
+
+## This extension provides access to the query execution cost as well as the uris accessed.
+
+
